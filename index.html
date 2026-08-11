@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Montegs Downloader</title>
+
+    <link rel="icon" type="image/png" href="https://i.ibb.co/LhdyJMm2/image.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #08070e;
+            --bg-panel: rgba(18, 16, 32, 0.65);
+            --border-glow: rgba(168, 85, 247, 0.2);
+            --accent-primary: #a855f7;
+            --accent-purple: #9333ea;
+            --text-main: #edf2f7;
+            --text-muted: #7f8ea3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .app-container {
+            width: 1480px;
+            max-width: 100%;
+            height: 92vh;
+            min-height: 750px;
+            background: rgba(12, 10, 22, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .header {
+            background: rgba(8, 7, 14, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 3;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            background-image: url('https://i.ibb.co/LhdyJMm2/image.png');
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 3px;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            height: 32px;
+            width: 80px;
+        }
+
+        .lang-toggle .lang-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 36px;
+            height: 26px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            border-radius: 20px;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+
+        .lang-toggle .lang-slider.en {
+            transform: translateX(38px);
+        }
+
+        .lang-toggle .lang-label {
+            flex: 1;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            z-index: 1;
+            line-height: 26px;
+            transition: color 0.2s;
+        }
+
+        .lang-toggle .lang-label.active {
+            color: #fff;
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            min-width: 240px;
+            background: var(--bg-panel);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+
+        .sidebar-header p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .category-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-right: 4px;
+        }
+
+        .category-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .category-list::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 10px;
+        }
+
+        .category-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+        }
+
+        .category-btn.active {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: rgba(168, 85, 247, 0.2);
+            color: #fff;
+            box-shadow: inset 3px 0 0 var(--accent-primary);
+        }
+
+        .category-btn .badge {
+            background: rgba(255,255,255,0.06);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .category-btn.active .badge {
+            background: rgba(168, 85, 247, 0.2);
+            color: #e9d5ff;
+        }
+
+        .content {
+            flex: 1;
+            background: var(--bg-panel);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .content-title h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .content-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .content-title .sub-header {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 6px;
+            padding: 4px 12px;
+            font-size: 12px;
+            color: var(--accent-primary);
+            margin-top: 8px;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 380px;
+            height: 44px;
+            margin: 10px 0 8px 0;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus-within {
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.05);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            flex: 1;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box .clear-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            border-radius: 6px;
+            color: var(--text-muted);
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .search-box .clear-btn:hover {
+            background: rgba(255, 60, 60, 0.2);
+            color: #ff6b6b;
+        }
+        .search-box .clear-btn.visible { display: flex; }
+
+        .search-hint {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-bottom: 10px;
+            min-height: 18px;
+        }
+
+        .tools-grid {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 14px;
+            padding: 4px 2px 10px 2px;
+        }
+
+        .tools-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+        .tools-grid::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 10px;
+        }
+
+        .tool-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 16px 18px;
+            width: 280px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .tool-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .tool-card .name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.3;
+            margin-bottom: 6px;
+        }
+
+        .tool-card .desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .tool-card .file-name {
+            font-size: 11px;
+            color: #4a5568;
+            margin-top: 8px;
+            font-family: 'Consolas', monospace;
+        }
+
+        .empty-state {
+            width: 100%;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .credit-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 18px 22px;
+            width: 360px;
+            min-height: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .credit-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .credit-card .name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .credit-card .role {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .credit-card .source {
+            font-size: 12px;
+            color: var(--accent-primary);
+            margin-top: 6px;
+        }
+
+        .status-bar {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 10px 28px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-window {
+            background: #121020;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 32px 36px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+            animation: modalFade 0.25s ease;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-window h3 {
+            color: #fff;
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .modal-window .modal-sub {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .modal-window .command-box {
+            background: #0a0812;
+            border: 1px solid #252035;
+            border-radius: 12px;
+            padding: 16px;
+            color: #e9d5ff;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 24px;
+            user-select: all;
+        }
+
+        .modal-window .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-window .modal-buttons button {
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-window .modal-buttons button:hover {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+
+        .modal-window .modal-buttons button.primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .modal-window .modal-buttons button.primary:hover {
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+            transform: scale(1.02);
+        }
+
+        .modal-window .copy-success {
+            color: #4ade80;
+            font-size: 13px;
+            margin-right: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modal-window .copy-success.show { opacity: 1; }
+
+        @media (max-width: 1100px) {
+            .sidebar { width: 220px; min-width: 160px; }
+            .tool-card { width: 240px; }
+        }
+
+        @media (max-width: 768px) {
+            .app-container { height: 100vh; border-radius: 0; padding: 0; }
+            .main { flex-direction: column; padding: 12px; gap: 12px; }
+            .sidebar { width: 100%; min-width: unset; max-height: 200px; flex-shrink: 0; }
+            .content { min-height: 400px; }
+            .tool-card { width: 100%; }
+            .header { padding: 12px 16px; flex-wrap: wrap; }
+            .search-box { max-width: 100%; }
+            .content-header { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<canvas id="particles-canvas"></canvas>
+
+<div class="app-container" id="app">
+    <header class="header">
+        <div class="logo-area">
+            <div class="logo-icon"></div>
+            <div class="logo-text">
+                <h1>Montegs Downloader</h1>
+                <span id="headerSubtitle">Загрузчик инструментов</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="lang-toggle" id="langToggle" onclick="toggleLang()">
+                <div class="lang-slider ru" id="langSlider"></div>
+                <div class="lang-label active" id="langRu">RU</div>
+                <div class="lang-label" id="langEn">EN</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2 id="categoriesTitle">Категории</h2>
+                <p id="categoriesHint">Выберите категорию</p>
+            </div>
+            <div class="category-list" id="categoryList"></div>
+        </aside>
+
+        <main class="content">
+            <div class="content-header">
+                <div class="content-title">
+                    <h3 id="categoryTitle">Montegs</h3>
+                    <p id="categoryDesc">Инструменты от Montegs</p>
+                    <span class="sub-header" id="categoryHeader">Инструменты от Montegs | github.com/softmethod</span>
+                </div>
+                <div class="content-actions">
+                    <span id="itemCount" style="color:var(--text-muted);font-size:13px;">0 инструментов</span>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <span style="color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:1px;" id="searchLabel">ПОИСК</span>
+                <input type="text" id="searchInput" placeholder="Ввод..." oninput="onSearch()">
+                <button class="clear-btn" id="clearSearchBtn" onclick="clearSearch()">✕</button>
+            </div>
+            <div class="search-hint" id="searchHint"></div>
+
+            <div class="tools-grid" id="toolsGrid"></div>
+        </main>
+    </div>
+
+    <div class="status-bar">
+    </div>
+</div>
+
+<div class="modal-overlay" id="scriptModal">
+    <div class="modal-window">
+        <h3 id="modalTitle">Script</h3>
+        <div class="modal-sub" id="modalSub">Скопируйте команду и вставьте в PowerShell</div>
+        <div class="command-box" id="modalCommand">command</div>
+        <div class="modal-buttons">
+            <span class="copy-success" id="copySuccess">✓ Скопировано!</span>
+            <button id="modalCloseBtn" onclick="closeModal()">Закрыть</button>
+            <button class="primary" id="modalCopyBtn" onclick="copyCommand()">Копировать</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function initParticles() {
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h;
+        let particles = [];
+        const count = 110;
+
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset(true);
+            }
+            reset(init) {
+                this.x = Math.random() * w;
+                this.y = init ? Math.random() * h : -10 - Math.random() * 50;
+                this.size = Math.random() * 3 + 1.5;
+                this.speedY = Math.random() * 0.8 + 0.4;
+                this.speedX = (Math.random() - 0.5) * 0.2;
+                this.opacity = Math.random() * 0.6 + 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.y > h + 10) {
+                    this.reset(false);
+                    this.x = Math.random() * w;
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(168, 85, 247, ${this.opacity})`;
+                ctx.fill();
+                
+                ctx.shadowColor = 'rgba(168, 85, 247, 0.2)';
+                ctx.shadowBlur = 8;
+            }
+        }
+
+        for (let i = 0; i < count; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, w, h);
+            ctx.shadowBlur = 0;
+            for (const p of particles) {
+                p.update();
+                p.draw();
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    })();
+
+    const categories = [
+        { key: 'montegs', label: { ru: 'Montegs', en: 'Montegs' }, header: { ru: 'Инструменты от Montegs | github.com/softmethod', en: 'Tools from Montegs | github.com/softmethod' }, desc: { ru: 'Артефакты, журналы и анализ модов.', en: 'Artifacts, journals and mod analysis.' } },
+        { key: 'orbdiff', label: { ru: 'OrbDiff', en: 'OrbDiff' }, header: { ru: 'Инструменты от OrbDiff | github.com/orbdiff', en: 'Tools from OrbDiff | github.com/orbdiff' }, desc: { ru: 'Prefetch, BAM, USN, память, процессы, USB и строки.', en: 'Prefetch, BAM, USN, memory, processes, USB and strings.' } },
+        { key: 'spokwn', label: { ru: 'Spokwn', en: 'Spokwn' }, header: { ru: 'Инструменты от Spokwn | github.com/spokwn', en: 'Tools from Spokwn | github.com/spokwn' }, desc: { ru: 'BAM, журналы, кэш активностей, сервисы, процессы и пути.', en: 'BAM, journals, activity cache, services, processes and paths.' } },
+        { key: 'detectac', label: { ru: 'DetectAC', en: 'DetectAC' }, header: { ru: 'Инструменты от DetectAC | detect.ac', en: 'Tools from DetectAC | detect.ac' }, desc: { ru: 'Бесплатные инструменты DetectAC для анализа артефактов Windows.', en: 'Free DetectAC tools for Windows artifact analysis.' } },
+        { key: 'scripts', label: { ru: 'Scripts', en: 'Scripts' }, header: { ru: 'Полезные PowerShell скрипты', en: 'Useful PowerShell scripts' }, desc: { ru: 'Скрипты для анализа.', en: 'Scripts for analysis.' } },
+        { key: 'nirsoft', label: { ru: 'NirSoft', en: 'NirSoft' }, header: { ru: 'Утилиты NirSoft | nirsoft.net', en: 'NirSoft utilities | nirsoft.net' }, desc: { ru: 'Утилиты для событий, USB, реестра, ShellBags и Prefetch.', en: 'Portable utilities for events, USB, registry, ShellBags and Prefetch.' } },
+        { key: 'ericzimmerman', label: { ru: 'EricZimmerman', en: 'EricZimmerman' }, header: { ru: 'Инструменты Eric Zimmerman | ericzimmerman.github.io', en: 'Eric Zimmerman tools | ericzimmerman.github.io' }, desc: { ru: 'Amcache, журналы событий, Jump Lists, реестр, ShellBags, SRUM, MFT.', en: 'Amcache, event logs, Jump Lists, registry, ShellBags, SRUM, MFT.' } },
+        { key: 'others', label: { ru: 'Others', en: 'Others' }, header: { ru: 'Различные инструменты сообщества', en: 'Various community tools' }, desc: { ru: 'Декомпиляторы, hex-редакторы, поиск файлов, Java сканеры, криминалистика.', en: 'Decompilers, hex editors, file search, Java scanners, forensics.' } },
+        { key: 'decompilers', label: { ru: 'Decompilers', en: 'Decompilers' }, header: { ru: 'Java декомпиляторы и редакторы байт-кода', en: 'Java decompilers and bytecode editors' }, desc: { ru: 'Инструменты для анализа и декомпиляции Java классов.', en: 'Tools for Java class analysis and decompilation.' } }
+    ];
+
+    const allTools = [
+        { name: 'MontegsArtifactsViewer', desc: { ru: 'Просмотр артефактов Windows', en: 'Windows artifacts viewer' }, category: 'montegs', links: ['https://github.com/softmethod/MontegsArtifactsViewer'], fileName: 'MontegsArtifactsViewer.jar' },
+        { name: 'MontegsJournal', desc: { ru: 'Анализ NTFS журналов', en: 'NTFS journal analysis' }, category: 'montegs', links: ['https://github.com/softmethod/MontegsJournal'], fileName: 'MontegsJournal.jar' },
+        { name: 'MontegsModAnalyzer', desc: { ru: 'Анализ модов и их артефактов', en: 'Mod and artifact analysis' }, category: 'montegs', links: ['https://github.com/softmethod/MontegsModAnalyzer'], fileName: 'MontegsModAnalyzer.jar' },
+        { name: 'Amcache Parser', desc: { ru: 'Парсит AMCache с YARA', en: 'Parses AMCache with YARA' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/AmcacheParser/releases/latest/download/AmcacheParser.exe'], fileName: 'AmcacheParser.exe' },
+        { name: 'DPS Analyzer', desc: { ru: 'Анализирует память DPS', en: 'Analyzes DPS memory' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/DPS-Analyzer/releases/latest/download/dpsanalyzer.exe'], fileName: 'dpsanalyzer.exe' },
+        { name: 'Journal Parser', desc: { ru: 'Парсит записи NTFS USNJournal', en: 'Parses NTFS USNJournal entries' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/JournalParser/releases/latest/download/JournalParser.exe'], fileName: 'JournalParser.exe' },
+        { name: 'USB Detector', desc: { ru: 'Определяет историю USB устройств', en: 'Detects USB device history' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/USBDetector/releases/latest/download/USBDetector.exe'], fileName: 'USBDetector.exe' },
+        { name: 'Bam Check Restart', desc: { ru: 'Определяет дату создания BAM', en: 'Detects BAM creation date' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/BAM-CheckRestart/releases/download/v2.0.2/BAMCheckRestart.exe'], fileName: 'BAMCheckRestart.exe' },
+        { name: 'Fileless', desc: { ru: 'Обнаружение безфайловых угроз через EventLog', en: 'Fileless detection via EventLog' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/Fileless/releases/latest/download/fileless.exe'], fileName: 'fileless.exe' },
+        { name: 'PF Trace', desc: { ru: 'Анализ Prefetch для Rundll32/Regsvr32', en: 'Prefetch analysis for Rundll32/Regsvr32' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/PFTrace/releases/latest/download/PFTrace.exe'], fileName: 'PFTrace.exe' },
+        { name: 'User Assist View', desc: { ru: 'Парсинг артефакта UserAssist', en: 'UserAssist artifact parser' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/UserAssistView/releases/latest/download/UserAssistView.exe'], fileName: 'UserAssistView.exe' },
+        { name: 'BAM Reveal', desc: { ru: 'Парсинг BAM', en: 'BAM artifact parser' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/BAMReveal/releases/latest/download/BAMReveal.exe'], fileName: 'BAMReveal.exe' },
+        { name: 'InjGen', desc: { ru: 'Обнаружение JNI/JVMTI инжектов', en: 'JNI/JVMTI injection detection' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/InjGen/releases/latest/download/InjGen.exe'], fileName: 'InjGen.exe' },
+        { name: 'Check Deleted USN', desc: { ru: 'Сравнивает отметку USN с временем загрузки', en: 'Compares USN timestamp vs boot time' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/CheckDeletedUSN/releases/latest/download/CheckDeletedUSN.exe'], fileName: 'CheckDeletedUSN.exe' },
+        { name: 'JAR Parser', desc: { ru: 'Парсит JAR prefetch, DcomLaunch строки', en: 'Parses JAR prefetch, DcomLaunch strings' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/JARParser/releases/latest/download/JARParser.exe'], fileName: 'JARParser.exe' },
+        { name: 'Strings Parser', desc: { ru: 'Сканер строк + YARA', en: 'Strings + YARA scanner' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/StringsParser/releases/download/v1.2/stringsparser1.2b.exe'], fileName: 'stringsparser1.2b.exe' },
+        { name: 'PrefetchView++', desc: { ru: 'Парсит и анализирует Prefetch', en: 'Parses and analyzes Prefetch.' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/PrefetchView/releases/download/v1.6.8/pv++.exe'], fileName: 'pv++.exe' },
+        { name: 'MFTParser', desc: { ru: 'Парсит MFT', en: 'MFT parser' }, category: 'orbdiff', links: ['https://github.com/Orbdiff/MFTParser/releases/download/v0.1/mftparser.exe'], fileName: 'mftparser.exe' },
+        { name: 'Activities Cache Parser', desc: { ru: 'Получает выполнение файлов из activitiescache.db', en: 'Gets file execution from activitiescache.db' }, category: 'spokwn', links: ['https://github.com/spokwn/ActivitiesCache-execution/releases/download/v0.6.5/ActivitiesCacheParser.exe'], fileName: 'ActivitiesCacheParser.exe' },
+        { name: 'BAM Parser', desc: { ru: 'Парсинг BAM', en: 'BAM artifact parser' }, category: 'spokwn', links: ['https://github.com/spokwn/BAM-parser/releases/download/v1.2.9/BAMParser.exe'], fileName: 'BAMParser.exe' },
+        { name: 'Bam Deleted Keys', desc: { ru: 'Собирает удалённые ключи BAM', en: 'Collects deleted BAM keys' }, category: 'spokwn', links: ['https://github.com/spokwn/BamDeletedKeys/releases/download/v1.0/BamDeletedKeys.exe'], fileName: 'BamDeletedKeys.exe' },
+        { name: 'Journal Trace', desc: { ru: 'Парсит записи NTFS журнала', en: 'Parses NTFS journal entries' }, category: 'spokwn', links: ['https://github.com/spokwn/JournalTrace/releases/download/1.2/JournalTrace.exe'], fileName: 'JournalTrace.exe' },
+        { name: 'Espouken Tool', desc: { ru: 'Набор различных инструментов', en: 'Various tools collection' }, category: 'spokwn', links: ['https://github.com/spokwn/Tool/releases/download/v1.1.3/espouken.exe'], fileName: 'espouken.exe' },
+        { name: 'Process Parser', desc: { ru: 'Парсинг процессов через xxstrings', en: 'Process parsing via xxstrings' }, category: 'spokwn', links: ['https://github.com/spokwn/process-parser/releases/download/v0.5.5/ProcessParser.exe'], fileName: 'ProcessParser.exe' },
+        { name: 'Paths Parser', desc: { ru: 'Парсинг информации о путях из .txt', en: 'Path information parser from .txt' }, category: 'spokwn', links: ['https://github.com/spokwn/PathsParser/releases/download/v1.2/PathsParser.exe'], fileName: 'PathsParser.exe' },
+        { name: 'KernelLiveDump', desc: { ru: 'Анализатор оперативной памяти ядра', en: 'Kernel memory analyzer' }, category: 'spokwn', links: ['https://github.com/spokwn/KernelLiveDumpTool/releases/download/v1.1/KernelLiveDumpTool.exe'], fileName: 'KernelLiveDumpTool.exe' },
+        { name: 'Amcache Parser++', desc: { ru: 'Парсер Amcache с YARA + VirusTotal', en: 'Amcache parser with YARA + VirusTotal' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/AmcacheParser++.exe'], fileName: 'AmcacheParser++.exe' },
+        { name: 'Autoruns++', desc: { ru: 'Альтернатива Autoruns с USN мониторингом', en: 'Autoruns alternative with USN monitoring' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/Autoruns++.exe'], fileName: 'Autoruns++.exe' },
+        { name: 'Bam Parser++', desc: { ru: 'BAM с YARA и обнаружением изменений', en: 'BAM with YARA and tamper detection' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/BamParser++.exe'], fileName: 'BamParser++.exe' },
+        { name: 'Journal Trace++', desc: { ru: 'Анализ USN Journal с обнаружением обходов', en: 'USN Journal analysis with bypass detection' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/JournalTrace++.exe'], fileName: 'JournalTrace++.exe' },
+        { name: 'Kernel Live Dump++', desc: { ru: 'Дамп ядра и пользовательского режима', en: 'Kernel and user-mode RAM dump' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/KernelLiveDump++.exe'], fileName: 'KernelLiveDump++.exe' },
+        { name: 'MFT Explorer++', desc: { ru: 'Просмотр $MFT с идентификацией ADS', en: '$MFT view with ADS identification' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/MFTExplorer++.exe'], fileName: 'MFTExplorer++.exe' },
+        { name: 'Paths Parser++', desc: { ru: 'Парсер путей с GUI и YARA', en: 'Path parser GUI with YARA support' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/PathsParser++.exe'], fileName: 'PathsParser++.exe' },
+        { name: 'PowerShell Parser++', desc: { ru: 'Сбор истории PowerShell', en: 'PowerShell history scraping' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/PowerShellParser++.exe'], fileName: 'PowerShellParser++.exe' },
+        { name: 'SRUM Explorer++', desc: { ru: 'Сопоставление путей и сервисов из SRUM', en: 'Path and service mapping from SRUM' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/SRUMExplorer++.exe'], fileName: 'SRUMExplorer++.exe' },
+        { name: 'String Explorer++', desc: { ru: 'Навигация по строковым данным с энтропией', en: 'String data navigation with entropy' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/StringExplorer++.exe'], fileName: 'StringExplorer++.exe' },
+        { name: 'USB Deview++', desc: { ru: 'Журналы USB устройств с DeviceHunt', en: 'USB device logs with DeviceHunt' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/USBDeview++.exe'], fileName: 'USBDeview++.exe' },
+        { name: 'Win Prefetch View++', desc: { ru: 'WinPrefetchView с YARA правилами', en: 'WinPrefetchView with YARA rules' }, category: 'detectac', links: ['https://github.com/detect-ac/Detect.ac-Free-Tools/releases/download/FreeTools/WinPrefetchView++.exe'], fileName: 'WinPrefetchView++.exe' },
+        { name: 'Full Event Log View', desc: { ru: 'Просмотр журналов событий Windows', en: 'Windows event log viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/fulleventlogview-x64.zip'], fileName: 'fulleventlogview-x64.zip' },
+        { name: 'Network Usage View', desc: { ru: 'Мониторинг использования сети', en: 'Network usage monitor' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/networkusageview-x64.zip'], fileName: 'networkusageview-x64.zip' },
+        { name: 'Browser Downloads View', desc: { ru: 'История загрузок браузера', en: 'Browser download history viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/browserdownloadsview-x64.zip'], fileName: 'browserdownloadsview-x64.zip' },
+        { name: 'Alternate Stream View', desc: { ru: 'Просмотр NTFS альтернативных потоков', en: 'NTFS alternate data streams viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/alternatestreamview-x64.zip'], fileName: 'alternatestreamview-x64.zip' },
+        { name: 'USB Deview', desc: { ru: 'Управление USB устройствами', en: 'USB device manager' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/usbdeview-x64.zip'], fileName: 'usbdeview-x64.zip' },
+        { name: 'Open Save Files View', desc: { ru: 'История диалогов Open/Save', en: 'Open/Save dialog history viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/opensavefilesview-x64.zip'], fileName: 'opensavefilesview-x64.zip' },
+        { name: 'Executed Programs List', desc: { ru: 'Список выполненных программ', en: 'Executed programs list viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/executedprogramslist.zip'], fileName: 'executedprogramslist.zip' },
+        { name: 'Task Scheduler View', desc: { ru: 'Просмотр заданий планировщика', en: 'Scheduled tasks viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/taskschedulerview-x64.zip'], fileName: 'taskschedulerview-x64.zip' },
+        { name: 'Jump Lists View', desc: { ru: 'Просмотр Jump Lists Windows', en: 'Windows Jump Lists viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/jumplistsview.zip'], fileName: 'jumplistsview.zip' },
+        { name: 'Win Prefetch View', desc: { ru: 'Просмотр Prefetch файлов Windows', en: 'Windows Prefetch files viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/winprefetchview-x64.zip'], fileName: 'winprefetchview-x64.zip' },
+        { name: 'Reg Scanner', desc: { ru: 'Расширенный сканер реестра', en: 'Advanced Registry scanner' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/regscanner-x64.zip'], fileName: 'regscanner-x64.zip' },
+        { name: 'ShellBags View', desc: { ru: 'Просмотр записей ShellBags', en: 'ShellBags entries viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/shellbagsview.zip'], fileName: 'shellbagsview.zip' },
+        { name: 'FileAccessErrorView', desc: { ru: 'Просмотр ошибок доступа к файлам', en: 'File access error viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/fileaccesserrorview-x64.zip'], fileName: 'fileaccesserrorview-x64.zip' },
+        { name: 'LastActivityView', desc: { ru: 'Просмотр последней активности системы', en: 'Last activity viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/lastactivityview-x64.zip'], fileName: 'lastactivityview-x64.zip' },
+        { name: 'RecentFilesView', desc: { ru: 'Просмотр недавних файлов', en: 'Recent files viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/recentfilesview-x64.zip'], fileName: 'recentfilesview-x64.zip' },
+        { name: 'UserAssistView', desc: { ru: 'Просмотр UserAssist записей', en: 'UserAssist viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/userassistview-x64.zip'], fileName: 'userassistview-x64.zip' },
+        { name: 'WinDefLogView', desc: { ru: 'Просмотр логов Windows Defender', en: 'Windows Defender log viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/windeflogview-x64.zip'], fileName: 'windeflogview-x64.zip' },
+        { name: 'BrowserHistoryView', desc: { ru: 'Просмотр истории браузеров', en: 'Browser history viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/browserhistoryview-x64.zip'], fileName: 'browserhistoryview-x64.zip' },
+        { name: 'USBDriveLog', desc: { ru: 'Логи USB накопителей', en: 'USB drive log' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/usbdrivelog-x64.zip'], fileName: 'usbdrivelog-x64.zip' },
+        { name: 'SpecialFoldersView', desc: { ru: 'Просмотр специальных папок', en: 'Special folders viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/specialfoldersview-x64.zip'], fileName: 'specialfoldersview-x64.zip' },
+        { name: 'LoadedDllsView', desc: { ru: 'Просмотр загруженных DLL', en: 'Loaded DLLs viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/loadeddllsview-x64.zip'], fileName: 'loadeddllsview-x64.zip' },
+        { name: 'RegistryChangesView', desc: { ru: 'Просмотр изменений реестра', en: 'Registry changes viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/registrychangesview-x64.zip'], fileName: 'registrychangesview-x64.zip' },
+        { name: 'BlueScreenView', desc: { ru: 'Просмотр синих экранов смерти', en: 'Blue screen viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/bluescreenview-x64.zip'], fileName: 'bluescreenview-x64.zip' },
+        { name: 'AppCompatibilityView', desc: { ru: 'Просмотр совместимости приложений', en: 'App compatibility viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/appcompatibilityview-x64.zip'], fileName: 'appcompatibilityview-x64.zip' },
+        { name: 'DriverView', desc: { ru: 'Просмотр установленных драйверов', en: 'Driver viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/driverview-x64.zip'], fileName: 'driverview-x64.zip' },
+        { name: 'DriveLetterView', desc: { ru: 'Просмотр букв дисков', en: 'Drive letter viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/driveletterview-x64.zip'], fileName: 'driveletterview-x64.zip' },
+        { name: 'AppAudioConfig', desc: { ru: 'Конфигурация аудио приложений', en: 'App audio configuration' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/appaudioconfig-x64.zip'], fileName: 'appaudioconfig-x64.zip' },
+        { name: 'TaskSchedulerView', desc: { ru: 'Просмотр заданий планировщика', en: 'Task scheduler viewer' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/taskschedulerview-x64.zip'], fileName: 'taskschedulerview-x64.zip' },
+        { name: 'PreviousFilesRecovery', desc: { ru: 'Восстановление предыдущих версий файлов', en: 'Previous files recovery' }, category: 'nirsoft', links: ['https://www.nirsoft.net/utils/previousfilesrecovery-x64.zip'], fileName: 'previousfilesrecovery-x64.zip' },
+        { name: 'Amcache Parser (EZ)', desc: { ru: 'Парсинг Amcache.hve', en: 'Amcache.hve parser' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/AmcacheParser.zip'], fileName: 'AmcacheParser.zip' },
+        { name: 'bstrings', desc: { ru: 'Извлечение строк', en: 'String extractor' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/bstrings.zip'], fileName: 'bstrings.zip' },
+        { name: 'EvtxECmd', desc: { ru: 'Парсер журналов событий', en: 'Event log parser' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/EvtxECmd.zip'], fileName: 'EvtxECmd.zip' },
+        { name: 'Jump List Explorer', desc: { ru: 'Просмотр Jump Lists', en: 'Jump List explorer' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/JumpListExplorer.zip'], fileName: 'JumpListExplorer.zip' },
+        { name: 'JLECmd', desc: { ru: 'Парсинг Jump List из командной строки', en: 'Jump List parser from command line' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/JLECmd.zip'], fileName: 'JLECmd.zip' },
+        { name: 'MFTECmd', desc: { ru: 'Парсер MFT', en: 'MFT parser' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/MFTECmd.zip'], fileName: 'MFTECmd.zip' },
+        { name: 'PECmd', desc: { ru: 'Парсер Prefetch', en: 'Prefetch parser' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/PECmd.zip'], fileName: 'PECmd.zip' },
+        { name: 'Registry Explorer', desc: { ru: 'Просмотр реестра', en: 'Registry viewer' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/RegistryExplorer.zip'], fileName: 'RegistryExplorer.zip' },
+        { name: 'ShellBags Explorer', desc: { ru: 'Просмотр ShellBags', en: 'ShellBags viewer' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/ShellBagsExplorer.zip'], fileName: 'ShellBagsExplorer.zip' },
+        { name: 'SrumECmd', desc: { ru: 'Парсер SRUM', en: 'SRUM parser' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/SrumECmd.zip'], fileName: 'SrumECmd.zip' },
+        { name: 'Timeline Explorer', desc: { ru: 'Просмотр временной шкалы', en: 'Timeline explorer' }, category: 'ericzimmerman', links: ['https://download.ericzimmermanstools.com/net9/TimelineExplorer.zip'], fileName: 'TimelineExplorer.zip' },
+        { name: 'Jarabel', desc: { ru: 'Поиск всех .jar файлов', en: 'Find all .jar files' }, category: 'others', links: ['https://github.com/nay-cat/Jarabel/releases/download/light/Jarabel.Light.exe'], fileName: 'Jarabel.Light.exe' },
+        { name: 'VM Aware', desc: { ru: 'Продвинутая библиотека обнаружения VM', en: 'Advanced VM detection library' }, category: 'others', links: ['https://github.com/NotRequiem/VMAware/releases/download/v2.8.0/vmaware.exe'], fileName: 'vmaware.exe' },
+        { name: 'NTFS Parser', desc: { ru: 'Инструмент для NTFS', en: 'NTFS forensics tool' }, category: 'others', links: ['https://github.com/thewhiteninja/ntfstool/releases/download/v1.7/ntfstool.x64.exe'], fileName: 'ntfstool.x64.exe' },
+        { name: 'Hayabusa', desc: { ru: 'Генератор временной шкалы', en: 'Timeline generator' }, category: 'others', links: ['https://github.com/Yamato-Security/hayabusa/releases/download/v3.10.0/hayabusa-3.10.0-all-platforms.zip'], fileName: 'hayabusa-3.10.0-all-platforms.zip' },
+        { name: 'Everything', desc: { ru: 'Мгновенный поиск файлов', en: 'Instant file search' }, category: 'others', links: ['https://www.voidtools.com/Everything-1.4.1.1032.x64-Setup.exe'], fileName: 'Everything-1.4.1.1032.x64-Setup.exe' },
+        { name: 'HxD', desc: { ru: 'Hex редактор', en: 'Hex editor' }, category: 'others', links: ['https://mh-nexus.de/downloads/HxDSetup.zip'], fileName: 'HxDSetup.zip' },
+        { name: 'DIE Engine', desc: { ru: 'Определяет тип файла и упаковщик', en: 'File type and packer detector' }, category: 'others', links: ['https://github.com/horsicq/DIE-engine/releases'], fileName: 'DIE-engine' },
+        { name: 'P1AE Javaw', desc: { ru: 'Сканер Javaw', en: 'Javaw scanner' }, category: 'others', links: ['https://github.com/p1aegg/javaw/releases/download/v1.9/P1AE.Javaw.exe'], fileName: 'P1AE.Javaw.exe' },
+        { name: 'Macro Scanner', desc: { ru: 'Сканер макросов', en: 'Macro scanner' }, category: 'others', links: ['https://github.com/Lafferrr/MacroScanner/releases/download/MS/MacroScanner.exe'], fileName: 'MacroScanner.exe' },
+        { name: 'String Checker', desc: { ru: 'Строковый чекер', en: 'String checker' }, category: 'others', links: ['https://github.com/Lafferrr/SSTools/raw/refs/heads/main/SSTools/Strings/LaffersStringsChecker.exe'], fileName: 'LaffersStringsChecker.exe' },
+        { name: 'Java Library Analyzer', desc: { ru: 'Анализатор Java библиотек', en: 'Java library analyzer' }, category: 'others', links: ['https://github.com/Lafferrr/SSTools/raw/refs/heads/main/SSTools/JavaLibraryAnalyzer/JavaLibraryAnalyzer.exe'], fileName: 'JavaLibraryAnalyzer.exe' },
+        { name: 'PJ Cheat Scanner Lite', desc: { ru: 'Строковый чекер', en: 'String checker' }, category: 'others', links: ['https://github.com/gorbgallin/Pj-sCheatScannerLite/releases/download/1.1/PjCheatScannerLite.exe'], fileName: 'PjCheatScannerLite.exe' },
+        { name: 'WinLiveInfo', desc: { ru: 'Анализ системы и просмотр логов загрузки', en: 'System analyze and boot log viewer' }, category: 'others', links: ['https://github.com/kacos2000/Win10LiveInfo/releases/download/v.1.0.23.0/WinLiveInfo.exe'], fileName: 'WinLiveInfo.exe' },
+        { name: 'DiskDrill', desc: { ru: 'Мощный инструмент для восстановления данных', en: 'Powerful data recovery tool' }, category: 'others', links: ['https://www.cleverfiles.com/disk-drill-windows.html'], fileName: 'DiskDrillSetup.exe' },
+        { name: 'FTK Imager', desc: { ru: 'Создание дампов памяти и просмотр образов дисков', en: 'Memory dumping and disk image viewer' }, category: 'others', links: ['https://www.exterro.com/ftk-imager'], fileName: 'FTKImager.exe' },
+        { name: 'Bytecode Viewer', desc: { ru: 'Просмотр байт кода Java', en: 'Java bytecode viewer' }, category: 'decompilers', links: ['https://github.com/Konloch/bytecode-viewer/releases'], fileName: 'Bytecode-Viewer-2.13.1.jar' },
+        { name: 'JBytedit', desc: { ru: 'Редактор байт кода Java', en: 'Java bytecode editor' }, category: 'decompilers', links: ['https://github.com/BytecodeDL/JBytedit/releases'], fileName: 'JBytedit-v0.3.1.jar' },
+        { name: 'JD-GUI', desc: { ru: 'Классический декомпилятор Java', en: 'Classic Java decompiler with GUI' }, category: 'decompilers', links: ['https://github.com/java-decompiler/jd-gui/releases'], fileName: 'jd-gui-1.6.6.jar' },
+        { name: 'Luyten', desc: { ru: 'Декомпилятор Java на основе Procyon', en: 'Java GUI decompiler based on Procyon' }, category: 'decompilers', links: ['https://github.com/deathmarine/Luyten/releases/download/v0.5.4_Rebuilt_with_Latest_depenencies/luyten-0.5.4.exe'], fileName: 'luyten-0.5.4.exe' },
+        { name: 'Recaf', desc: { ru: 'Редактор байт кода и декомпилятор Java', en: 'Powerful Java bytecode editor and decompiler' }, category: 'decompilers', links: ['https://github.com/Col-E/Recaf/releases'], fileName: 'recaf-4x-alpha-win-86x64.jar' }
+    ];
+
+    const scriptActions = [
+        { name: 'Running Processes', desc: { ru: 'Список всех запущенных процессов', en: 'List of all running processes' }, category: 'scripts', command: 'Get-Process | Sort-Object CPU -Descending | Format-Table Name,ID,CPU,WorkingSet -AutoSize' },
+        { name: 'Zeezy Services', desc: { ru: 'Запускает чекинг служб от zeezyexe', en: 'Runs zeezyexe services checker' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/zeezyexe/services-checker/refs/heads/main/zeezyservices.psl\')' },
+        { name: 'Doomsday Finder', desc: { ru: 'Запускает DoomsDayDetector от zedoonvm1', en: 'Runs zedoonvm1 DoomsDayDetector' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/zedoonvm1/powershell-scripts/refs/heads/main/DoomsDayDetector.ps1\')' },
+        { name: 'P1ae\'s Mod Analyzer', desc: { ru: 'Запускает мод анализатор от p1aegg', en: 'Runs p1aegg mod analyzer' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/p1aegg/powershell/refs/heads/main/modanalyzer.ps1\')' },
+        { name: 'Macro Scanner', desc: { ru: 'Сканирование макросов мыши от zeezy', en: 'Mouse macro scanning (zeezy)' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/zeezyexe/macro-scanner/refs/heads/main/catchmacro.ps1\')' },
+        { name: 'ClassLoader Dump', desc: { ru: 'Дамп ClassLoader', en: 'ClassLoader data dump' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/p1aegg/powershell/refs/heads/main/ClassLoaderDump.ps1\')' },
+        { name: 'Meow Mod Analyzer', desc: { ru: 'Запускает мод анализатор от MeowTonynoh', en: 'Runs MeowTonynoh mod analyzer' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/MeowTonynoh/MeowModAnalyzer/main/MeowModAnalyzer.ps1\')' },
+        { name: 'Prefetch Integrity Analyzer', desc: { ru: 'Анализ целостности Prefetch от RedLotus', en: 'Prefetch integrity analysis (RedLotus)' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/bacanoicua/Screenshare/main/RedLotusPrefetchIntegrityAnalyzer.ps1\')' },
+        { name: 'Lily Services', desc: { ru: 'Запускает чекинг служб от PraiseLily', en: 'Runs PraiseLily services checker' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/Lafferrr/SSTools/refs/heads/main/LilysServices\')' },
+        { name: 'DQRKIS Fucker', desc: { ru: 'Запускает чекер артефактов от DQRKIS', en: 'Runs DQRKIS artifact checker' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/cheesecatlol/DQRKIS-FUCKER/refs/heads/main/DqrkisFucker.ps1\')' },
+        { name: 'MacroDetector', desc: { ru: 'Обнаружение макросов и кликеров', en: 'Macro and clicker detection' }, category: 'scripts', command: 'Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; Invoke-Expression (Invoke-RestMethod \'https://raw.githubusercontent.com/NiccBlahh/MacroDetector/refs/heads/main/MacroDetector.ps1\')' }
+    ];
+
+    const credits = [
+        { name: 'Montegs', role: { ru: 'Инструменты Montegs для анализа артефактов.', en: 'Montegs tools for artifact analysis.' }, source: 'github.com/softmethod' },
+        { name: 'OrbDiff', role: { ru: 'Инструменты OrbDiff.', en: 'OrbDiff forensic tools.' }, source: 'github.com/Orbdiff' },
+        { name: 'Spokwn', role: { ru: 'Инструменты Spokwn.', en: 'Spokwn forensic tools.' }, source: 'github.com/spokwn' },
+        { name: 'DetectAC', role: { ru: 'Набор бесплатных инструментов DetectAC.', en: 'Free DetectAC tools suite.' }, source: 'detect.ac, github.com/detect-ac' },
+        { name: 'NirSoft', role: { ru: 'Утилиты NirSoft.', en: 'NirSoft utilities.' }, source: 'nirsoft.net' },
+        { name: 'Eric Zimmerman', role: { ru: 'Инструменты Eric Zimmerman.', en: 'Eric Zimmerman forensic tools.' }, source: 'ericzimmerman.github.io' }
+    ];
+
+    let currentCategory = 'montegs';
+    let searchQuery = '';
+    let currentLang = 'ru';
+    let currentScriptCommand = '';
+
+    const categoryList = document.getElementById('categoryList');
+    const toolsGrid = document.getElementById('toolsGrid');
+    const categoryTitle = document.getElementById('categoryTitle');
+    const categoryDesc = document.getElementById('categoryDesc');
+    const categoryHeader = document.getElementById('categoryHeader');
+    const searchInput = document.getElementById('searchInput');
+    const searchLabel = document.getElementById('searchLabel');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const searchHint = document.getElementById('searchHint');
+    const itemCount = document.getElementById('itemCount');
+    const langSlider = document.getElementById('langSlider');
+    const langRu = document.getElementById('langRu');
+    const langEn = document.getElementById('langEn');
+    const headerSubtitle = document.getElementById('headerSubtitle');
+    const categoriesTitle = document.getElementById('categoriesTitle');
+    const categoriesHint = document.getElementById('categoriesHint');
+    const scriptModal = document.getElementById('scriptModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSub = document.getElementById('modalSub');
+    const modalCommand = document.getElementById('modalCommand');
+    const copySuccess = document.getElementById('copySuccess');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const modalCopyBtn = document.getElementById('modalCopyBtn');
+
+    const translations = {
+        ru: {
+            title: 'Montegs Downloader', subtitle: 'Загрузчик инструментов', categories: 'Категории', categoriesHint: 'Выберите категорию',
+            searchPlaceholder: 'Ввод...', searchLabel: 'ПОИСК',
+            emptySearch: 'По запросу "{query}" ничего не найдено.', emptyCategory: 'В этой категории нет инструментов.',
+            searchResults: 'Результаты поиска', searchDesc: 'Найдено совпадений по запросу "{query}": {count}',
+            searchHeader: 'Поиск сканирует названия, описания, категории и источники.',
+            credits: 'Авторы и источники', items: 'инструментов',
+            scriptCopied: 'Скопируйте скрипт и вставьте его в PowerShell', scriptTitle: 'Скрипт',
+            copy: 'Копировать', close: 'Закрыть', copied: '✓ Скопировано!'
+        },
+        en: {
+            title: 'Montegs Downloader', subtitle: 'Tool Downloader', categories: 'Categories', categoriesHint: 'Select a category',
+            searchPlaceholder: 'Input...', searchLabel: 'FIND',
+            emptySearch: 'No tools matched "{query}".', emptyCategory: 'No items in this category.',
+            searchResults: 'Search Results', searchDesc: 'Live matches for "{query}": {count}',
+            searchHeader: 'Search scans tool names, descriptions, categories, and sources.',
+            credits: 'Credits & Sources', items: 'items',
+            scriptCopied: 'Script copied. Paste it into PowerShell', scriptTitle: 'Script',
+            copy: 'Copy', close: 'Close', copied: '✓ Copied!'
+        }
+    };
+
+    function getLang() { return translations[currentLang] || translations.ru; }
+
+    function toggleLang() {
+        currentLang = currentLang === 'ru' ? 'en' : 'ru';
+        langSlider.className = 'lang-slider ' + (currentLang === 'en' ? 'en' : 'ru');
+        langRu.classList.toggle('active', currentLang === 'ru');
+        langEn.classList.toggle('active', currentLang === 'en');
+        headerSubtitle.textContent = getLang().subtitle;
+        categoriesTitle.textContent = getLang().categories;
+        categoriesHint.textContent = getLang().categoriesHint;
+        searchInput.placeholder = getLang().searchPlaceholder;
+        searchLabel.textContent = getLang().searchLabel;
+        renderAll(); updateModalLang();
+    }
+
+    function updateModalLang() {
+        const lang = getLang();
+        modalCloseBtn.textContent = lang.close;
+        modalCopyBtn.textContent = lang.copy;
+    }
+
+    function getCategoryItems(key) {
+        if (key === 'scripts') return scriptActions;
+        if (key === 'credits') return credits;
+        return allTools.filter(t => t.category === key);
+    }
+
+    function getSearchItems(query) {
+        const q = query.toLowerCase().trim();
+        if (!q) return [];
+        const all = [...allTools, ...scriptActions];
+        return all.filter(item => {
+            const name = (item.name || '').toLowerCase();
+            const desc = (typeof item.desc === 'object') ? (item.desc[currentLang] || item.desc.ru || '').toLowerCase() : (item.desc || '').toLowerCase();
+            const cat = (item.category || '').toLowerCase();
+            const catLabel = categories.find(c => c.key === cat)?.label?.[currentLang]?.toLowerCase() || '';
+            const combined = name + ' ' + desc + ' ' + cat + ' ' + catLabel;
+            const terms = q.split(/\s+/);
+            return terms.every(term => combined.includes(term));
+        });
+    }
+
+    function getDisplayItems() {
+        if (searchQuery.trim()) return getSearchItems(searchQuery);
+        if (currentCategory === 'scripts') return scriptActions;
+        if (currentCategory === 'credits') return credits;
+        return allTools.filter(t => t.category === currentCategory);
+    }
+
+    function getCategoryCount(key) {
+        if (key === 'scripts') return scriptActions.length;
+        if (key === 'credits') return credits.length;
+        return allTools.filter(t => t.category === key).length;
+    }
+
+    function updateCategoryButtons() {
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            const key = btn.dataset.key;
+            const count = getCategoryCount(key);
+            const cat = categories.find(c => c.key === key);
+            const label = cat ? cat.label[currentLang] : key;
+            btn.innerHTML = `${label} <span class="badge">${count}</span>`;
+            btn.classList.toggle('active', key === currentCategory);
+        });
+    }
+
+    function updateItemCount() {
+        const items = getDisplayItems();
+        const lang = getLang();
+        itemCount.textContent = `${items.length} ${lang.items}`;
+    }
+
+    function getLocalizedText(obj) {
+        if (typeof obj === 'string') return obj;
+        if (obj && typeof obj === 'object') return obj[currentLang] || obj.ru || 'No description';
+        return 'No description';
+    }
+
+    function openModal(name, command) {
+        const lang = getLang();
+        modalTitle.textContent = lang.scriptTitle + ': ' + name;
+        modalSub.textContent = lang.scriptCopied;
+        modalCommand.textContent = command;
+        currentScriptCommand = command;
+        copySuccess.classList.remove('show');
+        updateModalLang();
+        scriptModal.classList.add('active');
+    }
+
+    function closeModal() { scriptModal.classList.remove('active'); }
+
+    function copyCommand() {
+        const lang = getLang();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(currentScriptCommand).then(() => {
+                copySuccess.classList.add('show'); copySuccess.textContent = lang.copied;
+                setTimeout(() => copySuccess.classList.remove('show'), 3000);
+            }).catch(() => fallbackCopy(currentScriptCommand));
+        } else fallbackCopy(currentScriptCommand);
+    }
+
+    function fallbackCopy(text) {
+        const lang = getLang();
+        const textarea = document.createElement('textarea');
+        textarea.value = text; textarea.style.position = 'fixed'; textarea.style.opacity = '0';
+        document.body.appendChild(textarea); textarea.select();
+        try {
+            document.execCommand('copy');
+            copySuccess.classList.add('show'); copySuccess.textContent = lang.copied;
+            setTimeout(() => copySuccess.classList.remove('show'), 3000);
+        } catch (e) { alert('Не удалось скопировать.'); }
+        document.body.removeChild(textarea);
+    }
+
+    scriptModal.addEventListener('click', (e) => { if (e.target === scriptModal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && scriptModal.classList.contains('active')) closeModal(); });
+
+    function renderCategories() {
+        categoryList.innerHTML = '';
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'category-btn';
+            btn.dataset.key = cat.key;
+            const count = getCategoryCount(cat.key);
+            const label = cat.label[currentLang] || cat.label.ru;
+            btn.innerHTML = `${label} <span class="badge">${count}</span>`;
+            if (cat.key === currentCategory) btn.classList.add('active');
+            btn.addEventListener('click', () => {
+                currentCategory = cat.key; searchQuery = ''; searchInput.value = ''; 
+                clearSearchBtn.classList.remove('visible'); renderAll();
+            });
+            categoryList.appendChild(btn);
+        });
+    }
+
+    function renderTools() {
+        toolsGrid.innerHTML = '';
+        const items = getDisplayItems();
+        const lang = getLang();
+
+        if (items.length === 0) {
+            const empty = document.createElement('div'); empty.className = 'empty-state';
+            empty.textContent = searchQuery.trim() ? lang.emptySearch.replace('{query}', searchQuery) : lang.emptyCategory;
+            toolsGrid.appendChild(empty); return;
+        }
+
+        if (!searchQuery.trim() && currentCategory === 'credits') {
+            items.forEach(credit => {
+                const card = document.createElement('div'); card.className = 'credit-card';
+                card.innerHTML = `<div class="name">${credit.name}</div><div class="role">${getLocalizedText(credit.role)}</div><div class="source">${credit.source}</div>`;
+                toolsGrid.appendChild(card);
+            }); return;
+        }
+
+        items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'tool-card';
+            card.innerHTML = `
+                <div class="name">${item.name}</div>
+                <div class="desc">${getLocalizedText(item.desc)}</div>
+                ${item.fileName ? `<div class="file-name">${item.fileName}</div>` : ''}
+            `;
+
+            card.addEventListener('click', () => {
+                const isScript = scriptActions.includes(item);
+                if (isScript) {
+                    if (item.command) openModal(item.name, item.command);
+                } else if (item.links && item.links.length > 0) {
+                    window.open(item.links[0], '_blank');
+                }
+            });
+
+            toolsGrid.appendChild(card);
+        });
+    }
+
+    function renderAll() {
+        const lang = getLang();
+        const cat = categories.find(c => c.key === currentCategory);
+
+        if (searchQuery.trim()) {
+            const count = getDisplayItems().length;
+            categoryTitle.textContent = lang.searchResults;
+            categoryDesc.textContent = lang.searchDesc.replace('{query}', searchQuery).replace('{count}', count);
+            categoryHeader.textContent = lang.searchHeader;
+        } else if (cat) {
+            categoryTitle.textContent = cat.label[currentLang] || cat.label.ru;
+            categoryDesc.textContent = getLocalizedText(cat.desc);
+            categoryHeader.textContent = cat.header[currentLang] || cat.header.ru;
+        }
+
+        updateItemCount(); renderTools(); updateCategoryButtons(); updateModalLang();
+    }
+
+    function onSearch() {
+        searchQuery = searchInput.value;
+        clearSearchBtn.classList.toggle('visible', !!searchQuery);
+        renderAll();
+    }
+
+    function clearSearch() {
+        searchInput.value = ''; searchQuery = '';
+        clearSearchBtn.classList.remove('visible');
+        renderAll(); searchInput.focus();
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && searchInput.value) { clearSearch(); e.preventDefault(); }
+    });
+
+    document.querySelector('.status-bar')?.addEventListener('dblclick', () => {
+        currentCategory = 'credits'; searchQuery = ''; searchInput.value = '';
+        clearSearchBtn.classList.remove('visible'); renderAll();
+    });
+
+    renderCategories(); renderAll();
+</script>
+</body>
+</html>
