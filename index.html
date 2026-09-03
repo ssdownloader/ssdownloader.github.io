@@ -750,7 +750,8 @@
         { key: 'nirsoft', label: { ru: 'NirSoft', en: 'NirSoft' }, header: { ru: 'Утилиты NirSoft | nirsoft.net', en: 'NirSoft utilities | nirsoft.net' }, desc: { ru: 'Утилиты для событий, USB, реестра, ShellBags и Prefetch.', en: 'Portable utilities for events, USB, registry, ShellBags and Prefetch.' } },
         { key: 'ericzimmerman', label: { ru: 'EricZimmerman', en: 'EricZimmerman' }, header: { ru: 'Инструменты Eric Zimmerman | ericzimmerman.github.io', en: 'Eric Zimmerman tools | ericzimmerman.github.io' }, desc: { ru: 'Amcache, журналы событий, Jump Lists, реестр, ShellBags, SRUM, MFT.', en: 'Amcache, event logs, Jump Lists, registry, ShellBags, SRUM, MFT.' } },
         { key: 'others', label: { ru: 'Others', en: 'Others' }, header: { ru: 'Различные инструменты сообщества', en: 'Various community tools' }, desc: { ru: 'Декомпиляторы, hex-редакторы, поиск файлов, Java сканеры, криминалистика.', en: 'Decompilers, hex editors, file search, Java scanners, forensics.' } },
-        { key: 'decompilers', label: { ru: 'Decompilers', en: 'Decompilers' }, header: { ru: 'Java декомпиляторы и редакторы байт-кода', en: 'Java decompilers and bytecode editors' }, desc: { ru: 'Инструменты для анализа и декомпиляции Java классов.', en: 'Tools for Java class analysis and decompilation.' } }
+        { key: 'decompilers', label: { ru: 'Decompilers', en: 'Decompilers' }, header: { ru: 'Java декомпиляторы и редакторы байт-кода', en: 'Java decompilers and bytecode editors' }, desc: { ru: 'Инструменты для анализа и декомпиляции Java классов.', en: 'Java class analysis and decompilation tools.' } },
+        { key: 'echo', label: { ru: 'Echo', en: 'Echo' }, header: { ru: 'Инструменты Echo', en: 'Echo tools' }, desc: { ru: 'Инструменты для анализа артефактов Windows.', en: 'Tools for Windows artifact analysis.' } }
     ];
 
     const allTools = [
@@ -853,6 +854,11 @@
         { name: 'Luyten', desc: { ru: 'Декомпилятор Java на основе Procyon', en: 'Java GUI decompiler based on Procyon' }, category: 'decompilers', links: ['https://github.com/deathmarine/Luyten/releases/download/v0.5.4_Rebuilt_with_Latest_depenencies/luyten-0.5.4.exe'], fileName: 'luyten-0.5.4.exe' },
         { name: 'Recaf', desc: { ru: 'Редактор байт кода и декомпилятор Java', en: 'Powerful Java bytecode editor and decompiler' }, category: 'decompilers', links: ['https://github.com/Col-E/Recaf/releases'], fileName: 'recaf-4x-alpha-win-86x64.jar' }
     ];
+
+        { name: 'JournalTool', desc: { ru: 'Анализ NTFS USN Journal.', en: 'NTFS USN Journal analysis.' }, category: 'echo', links: ['https://drive.google.com/uc?export=download&id=1AhLZDcajQoo1u8AKwnKfM0vkR4x9p21V'], fileName: 'JournalTool' },
+        { name: 'Echo Strings', desc: { ru: 'Поиск и анализ строк в файлах.', en: 'Search and analyze strings in files.' }, category: 'echo', links: ['https://drive.google.com/uc?export=download&id=1p1XO8wBFjSxUUIdS8HOgqK_UKGuI45EI'], fileName: 'Echo Strings' },
+        { name: 'Echo BAM', desc: { ru: 'Анализ артефакта BAM.', en: 'BAM artifact analysis.' }, category: 'echo', links: ['https://drive.google.com/uc?export=download&id=1bBnFw91btDIhuZcAfXiN-_yY0XOF9j_z'], fileName: 'Echo BAM' },
+        { name: 'Echo UserAssist', desc: { ru: 'Анализ артефакта UserAssist.', en: 'UserAssist artifact analysis.' }, category: 'echo', links: ['https://drive.google.com/uc?export=download&id=1O7i10ywrdeTscxGL7drVctigekqgxgZP'], fileName: 'Echo UserAssist' },
 
     const scriptActions = [
         { name: 'Running Processes', desc: { ru: 'Список всех запущенных процессов', en: 'List of all running processes' }, category: 'scripts', command: 'Get-Process | Sort-Object CPU -Descending | Format-Table Name,ID,CPU,WorkingSet -AutoSize' },
